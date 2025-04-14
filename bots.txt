@@ -1,23 +1,2 @@
 # Добавьте ботов в формате: username:oauth_token
 # Получите OAuth токен на https://twitchapps.com/tmi/
-gracvv:oauth:1b99qc95k54d2d631uklpfn7wb4mfs
-dogger1master:oauth:on7sf7nmqfh6s00f941w461mqxn3dh
-grozingwolf:oauth:1bzcatu9aa69t9wtbcokw97lxgvdzr
-hera4ld:oauth:z7qbvwqk42gljbg0wnyncca9bvvbwe
-lider_ang:oauth:aj5r6m07wk01iamh8mz3amrndi0fkt
-myfasa1333:oauth:rr58u3pvbu68ugg397wypa9devq5ec
-krowning_gta5:oauth:t6m85eysx8mfyq0354umpiabpphcgi
-money_junior132:oauth:vtk2cb8zd8nt8dr3op8xetg9ptr1wa
-karina_ceks:oauth:h83z0fhl2s1q3pb4i71rir4e3fqcoq
-nastya_bomba4ka:oauth:bd2g3uswl8waf56uyedckasdscq5q7
-hulioaasss:oauth:wbcaoqvc4xo7g6s2jwh1ghfoe59a1c
-Vazgen_Ang:oauth:59msl64i17gcon3k4y0yzvdxdc30k5
-sahaaaaaaa007:oauth:aaak9t2e9feakbks4vfpd31n5mktpm
-milaaa_locostee:oauth:qq9zxgcva5ijsquttn2kjwu3nu1o30
-kekc_bulbaa:oauth:8ycx9txevu2ld9vilz0zws2a6seia4
-DAVIDUCH777:oauth:k71q4pypmjowrh4sja5dl1rm996uin
-mama_bomba69:oauth:jjske7auepoh3y52528eq70h7m5l2y
-tik_tokkkkkk:oauth:52eaqmnmfy2sbr0n540jh5tkrrs17j
-deadpooll555:oauth:csrpm5bw47e4jixxyo0l8rvrlsr5s9
-donatella_versacee:oauth:ct10ymj4xa7mfw8yngqouul1rjqs73
-maximkasoska228:oauth:kub3iqdpei1eduhktxyi6dqdp4s7sw
