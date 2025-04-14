@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Promoter</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .stream-container {
+            background-color: #16213e;
+            border-radius: 12px;
+            padding: 15px;
+            height: 600px;
+        }
+        .controls {
+            background-color: #16213e;
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            background-color: #4a4e8c;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6a6eac;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #e6e6e6;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a4e8c;
+            color: white;
+        }
+        button {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #5a5e9c;
+        }
+        button:disabled {
+            background-color: #2a2a4a;
+            cursor: not-allowed;
+        }
+        .log {
+            background-color: #16213e;
+            border-radius: 8px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #4a4e8c;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stream-container">
+            <iframe id="stream" src="about:blank"></iframe>
+        </div>
+        <div class="controls">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="messages-sent">0</div>
+                    <div class="stat-label">Отправлено сообщений</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="active-bots">0</div>
+                    <div class="stat-label">Активных ботов</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="viewer-count">0</div>
+                    <div class="stat-label">Зрителей</div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="channel" placeholder="Введите ник стримера">
+                <button onclick="loadStream()">Загрузить стрим</button>
+            </div>
+            
+            <div class="input-group">
+                <button onclick="loadBots()">Загрузить ботов</button>
+            </div>
+            
+            <div class="input-group">
+                <button id="auto-chat" onclick="toggleAutoChat()">Включить авточат</button>
+            </div>
+            
+            <div class="input-group">
+                <select id="bot-select">
+                    <option value="">Выберите бота</option>
+                </select>
+                <input type="text" id="message" placeholder="Введите сообщение">
+                <button onclick="sendMessage()">Отправить сообщение</button>
+            </div>
+            
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let isAutoChatting = false;
+        
+        function updateStats() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('messages-sent').textContent = data.messages_sent;
+                    document.getElementById('active-bots').textContent = data.active_bots;
+                    document.getElementById('viewer-count').textContent = data.viewer_count;
+                    document.getElementById('auto-chat').textContent = 
+                        data.is_auto_chatting ? 'Выключить авточат' : 'Включить авточат';
+                });
+        }
+        
+        function loadStream() {
+            const channel = document.getElementById('channel').value;
+            if (!channel) {
+                addLog('Введите ник стримера');
+                return;
+            }
+            
+            fetch('/api/load_stream', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ channel })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('stream').src = 
+                        `https://player.twitch.tv/?channel=${channel}&parent=localhost&muted=true`;
+                    addLog(`Загружен стрим: ${channel}`);
+                }
+            });
+        }
+        
+        function loadBots() {
+            fetch('/api/load_bots', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    addLog(`Загружено ботов: ${data.count}`);
+                    updateStats();
+                }
+            });
+        }
+        
+        function toggleAutoChat() {
+            fetch('/api/toggle_auto_chat', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    isAutoChatting = data.enabled;
+                    document.getElementById('auto-chat').textContent = 
+                        isAutoChatting ? 'Выключить авточат' : 'Включить авточат';
+                    addLog(isAutoChatting ? 'Авточат включен' : 'Авточат выключен');
+                }
+            });
+        }
+        
+        function sendMessage() {
+            const bot = document.getElementById('bot-select').value;
+            const message = document.getElementById('message').value;
+            
+            if (!bot || !message) {
+                addLog('Выберите бота и введите сообщение');
+                return;
+            }
+            
+            fetch('/api/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ bot, message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    addLog(`Бот ${bot} отправил: ${message}`);
+                    document.getElementById('message').value = '';
+                    updateStats();
+                } else {
+                    addLog(`Ошибка: ${data.message}`);
+                }
+            });
+        }
+        
+        function addLog(message) {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = message;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Обновляем статистику каждые 5 секунд
+        setInterval(updateStats, 5000);
+        
+        // Загружаем ботов при запуске
+        loadBots();
+    </script>
+</body>
+</html> 
